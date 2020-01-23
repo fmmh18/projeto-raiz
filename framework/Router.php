@@ -1,122 +1,81 @@
 <?php
-
 namespace framework;
 
-use framework\Request;
-use framework\Dispacher;
-use framework\RouteCollection;
+class Router {
+    /* armazenamento das rotas e dos parâmetros atuais do HTTP */
+    private $routes = [];
+    private static $params = [];
 
-class Router 
-{
-	
-	protected $route_collection;
+    /* verifica se método chamado é GET ou POST */
+    private function validate(string $method) {
+        return in_array($method, ['get', 'post']);
+    }
 
-	public function __construct()
-	{
+    /*
+        Chamado sempre que existe uma chamada nessa classe, caso a chamada
+        seja válida, irá separar e validar os argumentos recebidos, devendo receber
+        uma string e uma função. E por fim armazena no array de rotas, com a estrutura:
+        array(2) {
+            ["get"]=> array(3) {
+                ["/"]=> object(Closure)#2 (0) { }
+                ...
+            }
+            ["post"]=> array(1) {
+                ["/list"]=> object(Closure)#5 (0) { }
+                ...
+            }
+        }
+    */
+    public function __call(string $method, array $args) {
+        $method = strtolower($method);
 
-		$this->route_collection = new RouteCollection;
-		$this->dispacher = new Dispacher;
-	}
+        if(!$this->validate($method))
+            return false;
 
-	public function get($pattern, $callback)
-	{
-		
-		$this->route_collection->add('get', $pattern, $callback);
-		return $this;
-	}
+        [$route, $action] = $args;
+        if(!isset($action) or !is_callable($action))
+            return false;
+        
+        $this->routes[$method][$route] = $action;
+        return true;
+    }
 
-	public function post($pattern, $callback)
-	{
-		
-		$this->route_collection->add('post', $pattern, $callback);
-		return $this;	
-	}
+    /*
+        Dá início a aplicação, verificando se existem rotas
+        com o método HTTP atual (post ou get), se existe a rota definida pelo 
+        parâmetro GET r. E por fim chamando o callable da rota correspondente,
+        finalizando a aplicação exibindo o seu retorno (a resposta do Controller).
+    */
+    public function run () {
+        $method = strtolower($_SERVER['REQUEST_METHOD']) ?? 'get';
+        $route = $_GET['r'] ?? '/';
+        
+        if(!isset($this->routes[$method]))
+            die('405 Method not allowed');
 
-	public function put($pattern, $callback)
-	{
-		
-		$this->route_collection->add('put', $pattern, $callback);
-		return $this;	
-	}
+        if(!isset($this->routes[$method][$route]))
+            die('404 Error');
+        
+        self::$params = $this->getParams($method);
 
-	public function delete($pattern, $callback)
-	{
-		
-		$this->route_collection->add('delete', $pattern, $callback);
-		return $this;	
-	}
+        die( $this->routes[$method][$route]() );
+    }
 
-	public function find($request_type, $pattern)
-	{
-		return $this->route_collection->where($request_type, $pattern);
-	}
-	
-	protected function dispach($route, $params, $namespace = "App\\"){
-		
-		return $this->dispacher->dispach($route->callback, $params, $namespace);
-	}
-	
-	public function notFound()
-	{
-		return header("HTTP/1.0 404 Not Found", true, 404);
-	}
+    /*
+        Pega as variáveis correspondente ao método atual, sendo os dados
+        enviados pelo cliente.
+    */
+    private function getParams(string $method) {
+        if($method == 'get')
+            return $_GET;
 
+        return $_POST;
+    }
 
-	public function resolve($request){
-		
-		$route = $this->find($request->method(), $request->uri());
-
-		if($route)
-		{
-			
-			$params = $route->callback['values'] ? $this->getValues($request->uri(), $route->callback['values']) : [];
-
-			return $this->dispach($route, $params);
-			
-		}
-		return $this->notFound();
-
-	}
-
-	protected function getValues($pattern, $positions)
-	{
-		$result = [];
-
-		$pattern = array_filter(explode('/', $pattern));
-
-		foreach($pattern as $key => $value)
-		{
-			if(in_array($key, $positions)) {
-				$result[array_search($key, $positions)] = $value;
-			}
-		}
-
-		return $result;
-		
-	}
-
-	public function translate($name, $params)
-	{
-		$pattern = $this->route_collection->isThereAnyHow($name);
-		
-		if($pattern)
-		{
-			$protocol = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
-			$server = $_SERVER['SERVER_NAME'] . '/';
-			$uri = [];
-			
-			foreach(array_filter(explode('/', $_SERVER['REQUEST_URI'])) as $key => $value)
-			{
-				if($value == 'public') {
-					$uri[] = $value;
-					break;
-				}
-				$uri[] = $value;
-			}
-			$uri = implode('/', array_filter($uri)) . '/';
-
-			return $protocol . $server . $uri . $this->route_collection->convert($pattern, $params);
-		}
-		return false;
-	}
+    /*
+        Getter para que controlador possa pegar os dados da requisição do cliente
+    */
+    public static function getRequest() {
+        return self::$params;
+    }
 }

@@ -1,4 +1,5 @@
 RewriteEngine On
+RewriteBase /projeto-raiz/rotas/public
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
+RewriteCond %{REQUEST_FILENAME} !-d	
+RewriteRule ^([A-Za-z0-9\\\/\-]+)$ index.php?uri=$1 [QSA,L]

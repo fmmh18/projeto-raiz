@@ -2,4 +2,5 @@
 
 require __DIR__ . '/../bootstrap.php';
 
-resolve();
+
+$app->run();

@@ -1,12 +1,10 @@
 <?php
 
-use framework\Route as Route;
+use app\controller\Index;
+use framework\Router as Router;
 
-Route::get('/', function(){
-	echo "Página inicial";
+$app = new Router();
+
+$app->get('/', function () {
+    return Index::index();
 });
-/*
-Route::get(['set' => '/cliente', 'as' => 'clientes.index'], 'Controller@index');
-Route::get(['set' => '/cliente/{id}/show', 'as' => 'clientes.show'], 'Controller@show');
-Route::delete(['set' => 'cliente/delete', 'as' => 'clientes.delete'], 'Controller@teste');
-*/
