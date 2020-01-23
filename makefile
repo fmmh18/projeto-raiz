@@ -1,1 +1,2 @@
-php -s localhost:8080 -t public
+serve:
+	php -S localhost:8008 -t public

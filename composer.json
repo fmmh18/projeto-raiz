@@ -1,4 +1,13 @@
 {
+    "name": "fhayashida/projeto-raiz",
+    "description": "Exemplo de como montar um projeto com MVC e routes",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Flávio Hayashida",
+            "email": "flaviohayashida@afdsolution.com.br"
+        }
+    ],
     "require": {
         "vlucas/phpdotenv": "^4.1",
         "illuminate/database": "^5.4",
