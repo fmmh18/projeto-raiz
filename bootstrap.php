@@ -1,6 +1,7 @@
 <?php
 
 require __DIR__ . '/vendor/autoload.php';
+//	include __DIR__ . '/src/routes.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load(); 
@@ -11,10 +12,7 @@ ini_set('display_errors', true);
 }
 session_start();
 
-try {
-    include __DIR__ . '/src/dependecies.php';
-	include __DIR__ . '/src/routes.php';
+include __DIR__ . '/src/dependecies.php';
+ 
 
-} catch(\Exception $e){
-	echo $e->getMessage();
-}
+ 
