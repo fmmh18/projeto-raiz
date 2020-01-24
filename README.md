@@ -6,3 +6,5 @@ para gerar o dockerfile, caso queira utilizar o xdebug, versao diferenciada do p
 ler a documentação da pagina para saber como criar um dockerfile.
 A parte de rotas utilizei o repositorio como exemplo.
 https://github.com/alxbbarbosa/sistema_rotas_atigo_blog
+ao iniciar o projeto atentar-se em renomear o arquivo .env.example para .env
+que sao alguns parametros para utilizando da base de dados.
