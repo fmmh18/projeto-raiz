@@ -7,6 +7,6 @@ class Index extends Controller
 {
     public function index()
     {
-        return self::view('index');
+        return self::view('home/index');
     }
 }
